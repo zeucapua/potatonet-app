@@ -1,1 +1,16 @@
 @import "tailwindcss";
+
+@font-face {
+  font-family: "Neco";
+  src: url("/Neco-Variable.woff2");
+}
+
+@font-face {
+  font-family: "Comico";
+  src: url("/Comico-Regular.woff2");
+}
+
+@theme {
+  --font-neco: "Neco";
+  --font-comico: "Comico";
+}

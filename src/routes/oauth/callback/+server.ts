@@ -30,5 +30,5 @@ export async function GET({ request, cookies }: RequestEvent) {
     error(500, { message: (err as Error).message });
   }
 
-  redirect(301, "/");
+  redirect(301, "/farm");
 }
