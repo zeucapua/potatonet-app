@@ -1,5 +1,5 @@
+import { Agent } from "@atproto/api";
 import { atclient } from "$lib/atproto";
-import { AtpBaseClient, Agent } from "@atproto/api";
 
 import { decryptToString } from "$lib/server/encryption";
 import { decodeBase64, decodeBase64urlIgnorePadding } from "@oslojs/encoding";
@@ -25,19 +25,12 @@ export const handle: Handle = async ({ event, resolve }) => {
     const oauthSession = await atclient.restore(decrypted);
 
     // set the authed agent
-    const agent = new Agent(oauthSession);
-    event.locals.agent = agent;
+    const authedAgent = new Agent(oauthSession);
+    event.locals.authedAgent = authedAgent;
 
     // set the authed user with decrypted session DID
-    const user = await agent.getProfile({ actor: decrypted });
+    const user = await authedAgent.getProfile({ actor: decrypted });
     event.locals.user = user.data;
-  }
-  else {
-    // set public API agent
-    const agent = new AtpBaseClient({
-      service: "https://slingshot.microcosm.blue"
-    });
-    event.locals.agent = agent;
   }
 
   return resolve(event);

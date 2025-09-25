@@ -1,6 +1,6 @@
 // See https://svelte.dev/docs/kit/types#app.d.ts
 
-import type { Agent, AtpBaseClient } from "@atproto/api";
+import type { Agent } from "@atproto/api";
 import type { ProfileViewDetailed } from "@atproto/api/dist/client/types/app/bsky/actor/defs";
 
 // for information about these interfaces
@@ -10,7 +10,7 @@ declare global {
 
     // set on `hooks.server.ts`, available on server functions
 		interface Locals {
-      agent: Agent | AtpBaseClient | undefined; 
+      authedAgent: Agent | undefined; 
       user: ProfileViewDetailed | undefined;
     }
 
