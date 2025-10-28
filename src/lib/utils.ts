@@ -1,4 +1,12 @@
+import { atclient } from "./atproto";
+
 // --- UTILITIES ---
+export type CommonSliceFields = {
+  indexedAt: string;
+  cid: string;
+  uri: string;
+  collection: string;
+}
 
 export type LexiconCommunityBookmark = {
 	$type: "community.lexicon.bookmarks.bookmark";
@@ -11,6 +19,13 @@ export type LexiconCommunityLike = {
 	$type: "community.lexicon.interaction.like";
 	subject: string;
 	createdAt: string;
+}
+
+export type SliceItem<T> = CommonSliceFields & { value: T };
+
+export type SliceList<T> = CommonSliceFields & {
+  cursor: string;
+  records: (CommonSliceFields & { did: string, value: T })[];
 }
 
 export function parseAtUri(uri: string) {

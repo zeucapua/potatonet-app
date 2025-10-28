@@ -32,6 +32,7 @@
 		"@tailwindcss/vite": "^4.1.13",
 		"@tanstack/svelte-query": "^5.90.2",
 		"drizzle-orm": "^0.44.5",
-		"postgres": "^3.4.7"
+		"postgres": "^3.4.7",
+		"valibot": "^1.1.0"
 	}
 }
