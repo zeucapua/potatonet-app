@@ -23,3 +23,14 @@ export const getUserBookmarks = query(GetUserBookmarksValidator, async ({ handle
 
   return { cursor: data.cursor, bookmarks: data.records.map((r) => r.value )};
 });
+
+
+const GetAllBookmarksValidator = v.object({
+  cursor: v.optional(v.string())
+});
+
+export const getAllBookmarks = query(GetAllBookmarksValidator, async ({ cursor }) => {
+  const data = await LexiconBookmarkSlicesAPI.getList({ cursor }); 
+
+  return { cursor: data.cursor, bookmarks: data.records.map((r) => r.value )};
+});

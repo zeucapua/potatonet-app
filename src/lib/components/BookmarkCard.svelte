@@ -11,8 +11,8 @@
   let { isOwner, bookmark, onTagClick, onTagDeleteClick }: BookmarkCardProps = $props();
 </script>
 
-<article class="flex flex-col gap-4 border border-dashed hover:border-solid px-4 py-3 w-fit">
-  <a href={bookmark.subject} class="hover:cursor-pointer text-sm">{bookmark.subject}</a>
+<article class="flex flex-col gap-4 border border-dashed hover:border-solid hover:shadow-lg px-4 py-3 w-fit">
+  <a href={bookmark.subject} class="hover:cursor-pointer text-xl visited:text-violet-600">{bookmark.subject}</a>
   {#if bookmark.tags && bookmark.tags.length > 0}
     <div class="flex gap-5">
       {#each bookmark.tags as tag}
@@ -27,7 +27,7 @@
           {/if}
           <button 
             onclick={() => onTagClick(tag)}
-            class="bg-gray-200 w-fit px-2 py-1 hover:cursor-pointer"
+            class="bg-gray-200 w-fit px-2 py-1 hover:cursor-pointer font-comico text-sm"
           >
             {tag}
           </button>

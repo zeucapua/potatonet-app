@@ -1,5 +1,3 @@
-import { atclient } from "./atproto";
-
 // --- UTILITIES ---
 export type CommonSliceFields = {
   indexedAt: string;
