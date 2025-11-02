@@ -1,4 +1,3 @@
-import { dev } from "$app/environment";
 import { SLICES_NETWORK_ACCESS_TOKEN } from "$env/static/private";
 import type { LexiconCommunityBookmark, SliceItem, SliceList } from "$lib/utils";
 

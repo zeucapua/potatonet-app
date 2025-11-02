@@ -1,37 +1,23 @@
 <script lang="ts">
+  import TagPill from "./TagPill.svelte";
   import type { LexiconCommunityBookmark } from "$lib/utils";
 
   type BookmarkCardProps = {
-    isOwner: boolean;
+    isOwner?: boolean;
     bookmark: LexiconCommunityBookmark;
     onTagClick: (tag: string) => void;
     onTagDeleteClick?: (tag: string) => void;
   };
 
-  let { isOwner, bookmark, onTagClick, onTagDeleteClick }: BookmarkCardProps = $props();
+  let { isOwner = false, bookmark, onTagClick, onTagDeleteClick }: BookmarkCardProps = $props();
 </script>
 
 <article class="flex flex-col gap-4 border border-dashed hover:border-solid hover:shadow-lg px-4 py-3 w-fit">
-  <a href={bookmark.subject} class="hover:cursor-pointer text-xl visited:text-violet-600">{bookmark.subject}</a>
+  <a href={bookmark.subject} class="hover:underline hover:cursor-pointer hover:text-shadow-md text-xl visited:text-violet-600">{bookmark.subject}</a>
   {#if bookmark.tags && bookmark.tags.length > 0}
-    <div class="flex gap-5">
+    <div class="flex gap-5 flex-wrap">
       {#each bookmark.tags as tag}
-        <div class="relative group"> 
-          {#if isOwner}
-            <button 
-              onclick={() => onTagDeleteClick?.(tag)}
-              class="absolute -right-3 -top-3 group-hover:block hover:cursor-pointer hidden border bg-red-500 text-white text-xs px-1"
-            >
-               🗑️
-            </button>
-          {/if}
-          <button 
-            onclick={() => onTagClick(tag)}
-            class="bg-gray-200 w-fit px-2 py-1 hover:cursor-pointer font-comico text-sm"
-          >
-            {tag}
-          </button>
-        </div>
+        <TagPill {tag} showDeleteButton={isOwner} {onTagClick} {onTagDeleteClick} />
       {/each}
     </div>
   {:else}

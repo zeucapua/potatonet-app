@@ -14,3 +14,7 @@
   --font-neco: "Neco";
   --font-comico: "Comico";
 }
+
+@utility border-groove {
+  border-style: groove;
+}

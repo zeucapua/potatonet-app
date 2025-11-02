@@ -30,7 +30,6 @@
 		"@atproto/oauth-client-node": "^0.3.8",
 		"@oslojs/encoding": "^1.1.0",
 		"@tailwindcss/vite": "^4.1.13",
-		"@tanstack/svelte-query": "^5.90.2",
 		"drizzle-orm": "^0.44.5",
 		"postgres": "^3.4.7",
 		"valibot": "^1.1.0"

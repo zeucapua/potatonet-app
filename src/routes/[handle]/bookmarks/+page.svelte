@@ -1,12 +1,14 @@
 <script lang="ts">
+  import { page } from "$app/state";
   import BookmarkCard from "$lib/components/BookmarkCard.svelte";
-    import TagPill from "$lib/components/TagPill.svelte";
-  import { getAllBookmarks } from "./api/bookmarks/data.remote";
+  import TagPill from "$lib/components/TagPill.svelte";
+  import { getUserBookmarks } from "../../api/bookmarks/data.remote";
 
-  let { data } = $props();
+  let { data } = $props(); 
+  const { handle } = page.params;
+  let isOwner = $derived(data.user?.handle === handle);
   let cursor = $state("");
-  const userBookmarksQuery = $derived(getAllBookmarks({ cursor }));
-  const queryData = $derived(userBookmarksQuery.current);
+  const userBookmarksQuery = $derived(getUserBookmarks({ handle: handle as string, cursor }));
 
   let query = $state("");
   let filterTags = $state<string[]>([]);
@@ -14,7 +16,8 @@
   function onTagClick(tag: string) {
     const index = filterTags.findIndex((t) => t === tag);
     if (index >= 0) { filterTags.splice(index, 1); }
-    else { filterTags.push(tag);
+    else {
+      filterTags.push(tag);
     }
   }
 
@@ -23,10 +26,7 @@
   }
 </script>
 
-<div class="flex gap-4 items-center">
-  <h1 class="text-2xl lg:text-3xl font-comico">Explore</h1>
-  <h2 class="text-lg italic">recent 50</h2>
-</div>
+<h1 class="text-2xl lg:text-3xl font-comico">Bookmarks by @{handle}</h1>
 
 <menu class="flex flex-col lg:flex-row w-full gap-4">
   <label class="flex items-center gap-2">
@@ -50,7 +50,7 @@
   >
     Refresh
   </button>
-  {#if data.user}
+  {#if isOwner}
     <button class="justify-self-end font-comico bg-amber-400 text-black hover:cursor-pointer hover:bg-amber-500 hover:text-white px-4 py-2">
       🔖 New Bookmark
     </button>
@@ -63,11 +63,12 @@
   <p>Loading...</p>
 {:else if userBookmarksQuery.error}
   <p>Error</p>
-{:else if queryData}
+{:else}
+  {@const { cursor: returnedCursor, bookmarks } = userBookmarksQuery.current || { cursor: "", bookmarks: []}}
   <div class="flex flex-wrap gap-4">
-    {#each queryData.bookmarks as bookmark}
-      {#if bookmark.subject.includes(query) && (bookmark.tags?.some(t => filterTags.length > 0 ? filterTags.includes(t) : true))} 
-        <BookmarkCard {bookmark} {onTagClick} {onTagDeleteClick} />
+    {#each bookmarks as bookmark}
+      {#if bookmark.subject.includes(query) && (bookmark.tags?.every(t => filterTags.length > 0 ? filterTags.includes(t) : true))} 
+        <BookmarkCard {isOwner} {bookmark} {onTagClick} {onTagDeleteClick} />
       {/if}
     {/each}
   </div>
