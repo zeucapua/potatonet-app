@@ -2,17 +2,19 @@
 
 Get started at [potatonet.app](https://potatonet.app) 🥔
 
-- [ ] `/<handle>/home`: bookmarks per user
+- [ ] `/<handle>/bookmarks`: bookmarks per user
   - [x] fetch bookmarks
   - [x] filter by query term
   - [x] refresh bookmarks
-  - [ ] filter by tags
+  - [x] filter by tags
+  - [ ] pagination
 - [ ] atproto auth
   - [x] login/logout
   - [ ] bookmark CRUD
-- [ ] explore
-  - [ ] query and paginate all bookmarks
-  - [ ] filter explore
+- [x] explore
+  - [x] query all bookmarks
+  - [x] filter explore
+  - [ ] pagination
   - [ ] search bar `/search?q=<term>`
 
 > Special thanks to [pilcrowonpaper](https://pilcrowonpaper.com) for `@oslojs/encoding` library and the 
