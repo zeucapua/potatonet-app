@@ -1,7 +1,6 @@
 import * as v from "valibot";
-import { getRequestEvent, query } from "$app/server"
+import { query } from "$app/server"
 import { LexiconBookmarkSlicesAPI } from "$lib/server/api"
-import { Agent } from "@atproto/api";
 
 const GetUserBookmarksValidator = v.object({
   handle: v.string(),
@@ -9,19 +8,23 @@ const GetUserBookmarksValidator = v.object({
 });
 
 export const getUserBookmarks = query(GetUserBookmarksValidator, async ({ handle, cursor }) => {
-  const { locals } = getRequestEvent();
-  const agent = locals.authedAgent ?? new Agent({ service: "https://api.bsky.app" });
-  const result = await agent.resolveHandle({ handle });
-  if (!result.success) { throw Error() };
+  const result = await fetch(`https://slingshot.microcosm.blue/xrpc/com.atproto.identity.resolveHandle?handle=${handle}`)
+  const info = await result.json();
+
+  if (!info) { throw Error(); }
 
   const data = await LexiconBookmarkSlicesAPI.getList({ 
-    cursor, 
+    cursor: !cursor ? null : cursor, 
     where: {
-      did: { eq: result.data.did } 
+      did: { eq: info.did } 
     }
   });
 
-  return { cursor: data.cursor, bookmarks: data.records.map((r) => r.value )};
+  console.log(info);
+
+  return { cursor: data.cursor, list: data.records.map((r) => { 
+    return { did: r.did, bookmark: r.value }
+  })};
 });
 
 
@@ -32,5 +35,7 @@ const GetAllBookmarksValidator = v.object({
 export const getAllBookmarks = query(GetAllBookmarksValidator, async ({ cursor }) => {
   const data = await LexiconBookmarkSlicesAPI.getList({ cursor }); 
 
-  return { cursor: data.cursor, bookmarks: data.records.map((r) => r.value )};
+  return { cursor: data.cursor, list: data.records.map((r) => { 
+    return { did: r.did, bookmark: r.value }
+  })};
 });

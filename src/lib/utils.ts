@@ -11,6 +11,11 @@ export type LexiconCommunityBookmark = {
 	subject: string;
 	createdAt: string;
 	tags?: string[];
+  $enriched?: {
+    description: string;
+    favicon: string;
+    title: string;
+  }
 };
 
 export type LexiconCommunityLike = {
@@ -21,7 +26,7 @@ export type LexiconCommunityLike = {
 
 export type SliceItem<T> = CommonSliceFields & { value: T };
 
-export type SliceList<T> = CommonSliceFields & {
+export type SliceList<T> = {
   cursor: string;
   records: (CommonSliceFields & { did: string, value: T })[];
 }
@@ -34,4 +39,10 @@ export function parseAtUri(uri: string) {
     lexi: groups?.lexi,
     rkey: groups?.rkey
   }
+}
+
+export async function resolveHandle(handle: string) {
+  const result = await fetch(`https://slingshot.microcosm.blue/xrpc/com.atproto.identity.resolveHandle?handle=${handle}`)
+  const info = await result.json();
+  return info.did;
 }

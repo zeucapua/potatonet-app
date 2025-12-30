@@ -1,32 +1,43 @@
 <script lang="ts">
-  import { page } from "$app/state";
   import BookmarkCard from "$lib/components/BookmarkCard.svelte";
   import TagPill from "$lib/components/TagPill.svelte";
-  import { getUserBookmarks } from "../../api/bookmarks/data.remote";
+  import { createInfiniteQuery } from "@tanstack/svelte-query";
+  import { getUserBookmarks } from "../../api/bookmarks/data.remote.js";
+  import { page } from "$app/state";
 
-  let { data } = $props(); 
-  const { handle } = page.params;
-  let isOwner = $derived(data.user?.handle === handle);
-  let cursor = $state("");
-  const userBookmarksQuery = $derived(getUserBookmarks({ handle: handle as string, cursor }));
 
+  let { data } = $props();
   let query = $state("");
   let filterTags = $state<string[]>([]);
+  
+  let bookmarkPage = $state(0);
+  const userBookmarksQuery = createInfiniteQuery(() => ({
+    queryKey: ["user", page.params.handle],
+    queryFn: ({ pageParam }) => getUserBookmarks({ handle: page.params.handle!, cursor: pageParam }),
+    initialPageParam: "",
+    getNextPageParam: (lastPage) => lastPage.cursor,
+    select: (data) => data.pages.map((page) => page.list).flat(),
+    staleTime: 600
+  }));
+  let bookmarks = $derived(userBookmarksQuery.data ?? []);
 
   function onTagClick(tag: string) {
-    const index = filterTags.findIndex((t) => t === tag);
+    const index = filterTags.findIndex((t) => t.toLowerCase() === tag.toLowerCase());
     if (index >= 0) { filterTags.splice(index, 1); }
-    else {
-      filterTags.push(tag);
+    else { filterTags.push(tag.toLowerCase());
     }
   }
 
   function onTagDeleteClick(tag: string) {
     console.log("DELETE", tag);
   }
+
+  $inspect(bookmarkPage, bookmarks.slice(bookmarkPage*50));
 </script>
 
-<h1 class="text-2xl lg:text-3xl font-comico">Bookmarks by @{handle}</h1>
+<div class="flex gap-4 items-center">
+  <h1 class="text-2xl lg:text-3xl">Bookmarks by {page.params.handle}</h1>
+</div>
 
 <menu class="flex flex-col lg:flex-row w-full gap-4">
   <label class="flex items-center gap-2">
@@ -44,14 +55,16 @@
       {/each}
     {/if}
   </label>
-  <button
-    onclick={() => userBookmarksQuery.refresh()}
-    class="font-comico bg-amber-400 text-black hover:cursor-pointer hover:bg-amber-500 hover:text-white px-4 py-2"
-  >
-    Refresh
+
+  <button onclick={() => { userBookmarksQuery.fetchPreviousPage(); bookmarkPage--; }} disabled={!userBookmarksQuery.hasPreviousPage}>
+    Prev Page
   </button>
-  {#if isOwner}
-    <button class="justify-self-end font-comico bg-amber-400 text-black hover:cursor-pointer hover:bg-amber-500 hover:text-white px-4 py-2">
+  <button onclick={() => { userBookmarksQuery.fetchNextPage(); bookmarkPage++; }} disabled={!userBookmarksQuery.hasNextPage}>
+    Next Page
+  </button>
+
+  {#if data.user}
+    <button class="justify-self-end bg-amber-400 text-black hover:cursor-pointer hover:bg-amber-500 hover:text-white px-4 py-2">
       🔖 New Bookmark
     </button>
   {/if}
@@ -59,17 +72,25 @@
 </menu>
 <hr />
 
-{#if userBookmarksQuery.loading}
+{#if userBookmarksQuery.isPending}
   <p>Loading...</p>
-{:else if userBookmarksQuery.error}
+{:else if userBookmarksQuery.isError}
   <p>Error</p>
-{:else}
-  {@const { cursor: returnedCursor, bookmarks } = userBookmarksQuery.current || { cursor: "", bookmarks: []}}
+{:else if userBookmarksQuery.isSuccess}
   <div class="flex flex-wrap gap-4">
-    {#each bookmarks as bookmark}
-      {#if bookmark.subject.includes(query) && (bookmark.tags?.every(t => filterTags.length > 0 ? filterTags.includes(t) : true))} 
-        <BookmarkCard {isOwner} {bookmark} {onTagClick} {onTagDeleteClick} />
-      {/if}
-    {/each}
+    {#if bookmarks}
+      {@const pagedBookmarks = bookmarks.slice(bookmarkPage*50)}
+      {#each pagedBookmarks as info}
+        {@const bookmark = info.bookmark}
+        {#if bookmark.subject.includes(query)}
+          {#if (bookmark.tags && bookmark.tags.length > 0 
+              && bookmark.tags.some(t => filterTags.length > 0 ? filterTags.includes(t.toLowerCase()) : true)
+            ) 
+            || (bookmark.tags && bookmark.tags.length === 0 && filterTags.length === 0)}
+            <BookmarkCard {bookmark} {onTagClick} {onTagDeleteClick} />
+          {/if}
+        {/if}
+      {/each}
+    {/if}
   </div>
 {/if}

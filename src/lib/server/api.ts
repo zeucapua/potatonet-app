@@ -1,13 +1,13 @@
-import { SLICES_NETWORK_ACCESS_TOKEN } from "$env/static/private";
+import { SLICES_BEARER_TOKEN, SLICES_NETWORK_ACCESS_TOKEN } from "$env/static/private";
 import type { LexiconCommunityBookmark, SliceItem, SliceList } from "$lib/utils";
 
 const SLICES_NETWORK_SLICE_URI = "at://did:plc:gotnvwkr56ibs33l4hwgfoet/network.slices.slice/3m26tswgbi42i"
 
-const baseUrl = "https://api.slices.network/xrpc/";
+const baseUrl = "https://slices-api.fly.dev/xrpc/";
 
 type GetListProps = {
   limit?: number; // default: 50, max: 100
-  cursor?: string;
+  cursor?: string | null;
   where?: {
     [key: string]: { eq?: string, contains?: string, in?: string[] }
   };
@@ -24,23 +24,28 @@ export class SlicesAPI<T> {
     this.sliceUri = sliceUri;
   }
 
+  /**
   async getRecord({ uri }: { uri: string }) {
-    const searchParams = new URLSearchParams({ slice: SLICES_NETWORK_SLICE_URI, uri });
     const response = await fetch(`${baseUrl}${this.collection}.getRecord?${searchParams.toString()}`);
     return await response.json() as SliceItem<T>;
   }
+  **/
 
   async getList(body: GetListProps) {
     const response = await fetch(`${baseUrl}${this.collection}.getRecords`, {
       method: "POST",
       headers: { 
+        // "Accept": "*/*",
         "Content-Type": "application/json",
-        "Authorization": SLICES_NETWORK_ACCESS_TOKEN
+        // "Authorization": `Bearer ${SLICES_BEARER_TOKEN}`
       },
       body: JSON.stringify({ ...body, slice: SLICES_NETWORK_SLICE_URI })
     });
     const data = await response.json() as SliceList<T>;
-    console.log({ data });
+    for (const d of data.records) {
+      console.log(d); 
+    }
+    console.log(data.cursor);
     return data;
   }
 }

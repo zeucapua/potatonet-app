@@ -10,7 +10,7 @@
   let { tag, variant, showDeleteButton, onTagClick, onTagDeleteClick }: TagPillProps = $props();
 </script>
 
-<div class="relative group flex"> 
+<div class="relative group flex w-fit"> 
   {#if showDeleteButton && variant !== "menu"}
     <button 
       onclick={() => onTagDeleteClick?.(tag)}
@@ -23,7 +23,7 @@
     onclick={() => onTagClick?.(tag)}
     class={[
       variant === "menu" && "hover:bg-red-300",
-      "bg-gray-200 w-fit px-2 py-1 hover:cursor-pointer font-comico text-sm"
+      "bg-gray-200 w-fit px-2 py-1 hover:cursor-pointer text-sm"
     ]}
   >
     {tag}
