@@ -14,3 +14,30 @@ export async function resolveHandle(handle: string) {
   const info = await result.json();
   return info;
 }
+
+export type Node = {
+  uri: string;
+  cid: string;
+  did: string;
+  indexedAt: string;
+  actorHandle: string;
+}
+
+export type PublicationNode = Node & { value: {
+  url: string;
+  name: string;
+  description: string;
+}}
+
+export type DocumentNode = Node & { value: {
+  title: string;
+  site: string;
+  publishedAt: string;
+  path?: string;
+  content?: string;
+  bskyPostRef?: string;
+  description?: string;
+  textContent?: string;
+  tags?: string[];
+  updatedAt?: string;
+}}
