@@ -34,6 +34,7 @@
 		"@tanstack/svelte-query": "^6.0.9",
 		"drizzle-orm": "^0.44.5",
 		"postgres": "^3.4.7",
+		"quickslice-client-js": "^0.3.0",
 		"valibot": "^1.1.0"
 	}
 }
