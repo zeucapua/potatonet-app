@@ -27,6 +27,11 @@ export type PublicationNode = Node & { value: {
   url: string;
   name: string;
   description: string;
+  icon?: string;
+  preferences?: {
+    showInDiscover?: boolean;
+    hideProfile?: boolean;
+  }
 }}
 
 export type DocumentNode = Node & { value: {
