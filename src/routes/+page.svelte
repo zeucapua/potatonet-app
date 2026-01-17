@@ -5,6 +5,8 @@
   let { data } = $props();
   let { atclient, user } = data;
 
+  let page = $state(0);
+
   const publicationsQuery = createInfiniteQuery(() => ({
     queryKey: ["publications"],
     queryFn: async ({ pageParam }) => {
@@ -32,22 +34,50 @@
     },
     staleTime: 1000000,
     initialPageParam: "",
-    getNextPageParam: (lastPage) => lastPage.siteStandardPublication.pageInfo.endCursor
+    getNextPageParam: (lastPage) => lastPage.siteStandardPublication.pageInfo.endCursor,
+    select: (data) => { 
+      const items = data.pages.map((page) => page.siteStandardPublication.edges).flat();
+      const nodes = items.map((i) => i.node);
+      return nodes;
+    }
   }));
+
+  let currentPage = $derived(publicationsQuery.data?.slice(page*20, (page*20) + 20));
 </script>
 
+<menu>
+  <button 
+    onclick={() => { 
+      if (page > 0) {
+        page--;
+      }
+    }}
+    class="border"
+  >
+    Prev Page
+  </button>
+  <number>{page + 1}</number>
+  {#if publicationsQuery.hasNextPage}
+    <button 
+      onclick={() => { 
+        page++;
+        if ((page * 20) + 20 > (publicationsQuery.data?.length || 0)) {
+          publicationsQuery.fetchNextPage(); 
+        }
+      }}
+      class="border"
+    >
+      Next Page
+    </button>
+  {/if}
+</menu>
 {#if publicationsQuery.isFetching}
   <p>Fetching...</p>
 {:else if publicationsQuery.isError}
   <p>Error</p>
-{:else if publicationsQuery.isSuccess}
-  {@const publications = publicationsQuery.data.pages.map((p) => p.siteStandardPublication.edges.map((edge) => edge.node)).flat()}
-  {#each publications as publication}
-    <a href={`/pub?uri=${publication.uri}`}>{publication.uri}</a>
-    <p>{publication.value.url}</p>
+{:else}
+  {#each currentPage as publication (publication.uri)}
+    <a href={publication.value.url}>{publication.value.url}</a>
   {/each}
-  {#if publicationsQuery.hasNextPage}
-    <button onclick={() => publicationsQuery.fetchNextPage()}>Next Page</button>
-  {/if}
 {/if}
 
