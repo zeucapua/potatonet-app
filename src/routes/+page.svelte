@@ -1,6 +1,7 @@
 <script lang="ts">
+    import PublicationCard from '$lib/components/PublicationCard.svelte';
   import type { PublicationNode } from '$lib/utils';
-  import { createInfiniteQuery, createQuery } from '@tanstack/svelte-query';
+  import { createInfiniteQuery } from '@tanstack/svelte-query';
 
   let { data } = $props();
   let { atclient, user } = data;
@@ -43,9 +44,14 @@
   }));
 
   let currentPage = $derived(publicationsQuery.data?.slice(page*20, (page*20) + 20));
+  let showEmpty = $state(true);
 </script>
 
 <menu>
+  <label for="showEmpty">
+    <input name="showEmpty" type="checkbox" bind:checked={showEmpty}>
+    Show empty publication
+  </label>
   <button 
     onclick={() => { 
       if (page > 0) {
@@ -71,13 +77,13 @@
     </button>
   {/if}
 </menu>
+
 {#if publicationsQuery.isFetching}
   <p>Fetching...</p>
 {:else if publicationsQuery.isError}
   <p>Error</p>
 {:else}
   {#each currentPage as publication (publication.uri)}
-    <a href={publication.value.url}>{publication.value.url}</a>
+    <PublicationCard {publication} {showEmpty} />
   {/each}
 {/if}
-
