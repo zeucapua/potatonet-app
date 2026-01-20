@@ -32,6 +32,7 @@
 		"@oslojs/encoding": "^1.1.0",
 		"@tailwindcss/vite": "^4.1.13",
 		"@tanstack/svelte-query": "^6.0.9",
+		"@tanstack/svelte-query-devtools": "^6.0.3",
 		"drizzle-orm": "^0.44.5",
 		"postgres": "^3.4.7",
 		"quickslice-client-js": "^0.3.0",
