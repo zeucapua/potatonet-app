@@ -44,14 +44,9 @@
   }));
 
   let currentPage = $derived(publicationsQuery.data?.slice(page*20, (page*20) + 20));
-  let showEmpty = $state(true);
 </script>
 
 <menu>
-  <label for="showEmpty">
-    <input name="showEmpty" type="checkbox" bind:checked={showEmpty}>
-    Show empty publication
-  </label>
   <button 
     onclick={() => { 
       if (page > 0) {
@@ -84,6 +79,33 @@
   <p>Error</p>
 {:else}
   {#each currentPage as publication (publication.uri)}
-    <PublicationCard {publication} {showEmpty} />
+    <PublicationCard {publication} />
   {/each}
 {/if}
+
+<menu>
+  <button 
+    onclick={() => { 
+      if (page > 0) {
+        page--;
+      }
+    }}
+    class="border"
+  >
+    Prev Page
+  </button>
+  <number>{page + 1}</number>
+  {#if publicationsQuery.hasNextPage}
+    <button 
+      onclick={() => { 
+        page++;
+        if ((page * 20) + 20 > (publicationsQuery.data?.length || 0)) {
+          publicationsQuery.fetchNextPage(); 
+        }
+      }}
+      class="border"
+    >
+      Next Page
+    </button>
+  {/if}
+</menu>

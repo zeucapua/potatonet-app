@@ -9,10 +9,17 @@ export function parseAtUri(uri: string) {
   }
 }
 
+export type MiniDoc = {
+  did: string;
+  handle: string;
+  pds: string;
+  signing_key: string;
+}
+
 export async function resolveHandle(handle: string) {
   const result = await fetch(`https://slingshot.microcosm.blue/xrpc/com.bad-example.identity.resolveMiniDoc?identifier=${encodeURIComponent(handle)}`)
   const info = await result.json();
-  return info;
+  return info as MiniDoc;
 }
 
 export type Node = {
@@ -23,15 +30,36 @@ export type Node = {
   actorHandle: string;
 }
 
+export type ATBlob = {
+  $type: string;
+  ref: { $link: string; };
+  mimeType: string;
+  size: number;
+}
+
+export type StandardSiteThemeColorRGB = {
+  $type: "site.standard.theme.color#rgb",
+  b: number;
+  g: number;
+  r: number;
+}
+
 export type PublicationNode = Node & { value: {
   url: string;
   name: string;
   description: string;
-  icon?: string;
+  icon?: ATBlob;
   preferences?: {
     showInDiscover?: boolean;
     hideProfile?: boolean;
-  }
+  };
+  basicTheme?: {
+    $type: "site.standard.theme.basic",
+    background: StandardSiteThemeColorRGB;
+    foreground: StandardSiteThemeColorRGB;
+    accent: StandardSiteThemeColorRGB;
+    accentForeground: StandardSiteThemeColorRGB;
+  };
 }}
 
 export type DocumentNode = Node & { value: {

@@ -1,10 +1,15 @@
 <script lang="ts">
   import '../app.css';
 	import { page } from '$app/state';
+  import { setContext } from 'svelte';
   import { QueryClient, QueryClientProvider } from "@tanstack/svelte-query";
+  import { SvelteQueryDevtools } from "@tanstack/svelte-query-devtools";
 
 	let { data, children } = $props();
   const { atclient, user } = data;
+
+  setContext("user", user);
+  setContext("atclient", atclient);
 
   let handleInput = $state("");
 
@@ -29,16 +34,17 @@
 </script>
 
 <QueryClientProvider client={queryClient}>
-  <div class="flex flex-col gap-8 w-screen h-full min-h-screen font-neco">
+  <SvelteQueryDevtools />
+  <div class="flex flex-col gap-8 w-screen h-full min-h-screen font-azeret">
     <header class="flex flex-col lg:flex-row lg:items-center w-full gap-4 px-8 py-4 border-b lg:border-none justify-between">
-      <a href="/" class="text-2xl hover:text-shadow-md">potatonet.app</a>
+      <a href="/" class="text-2xl hover:text-shadow-md font-neco font-semibold">🥔 potatonet</a>
 
-      <div class="flex gap-4 items-center text-lg flex-wrap">
-        <nav class="text-lg flex gap-4 flex-wrap items-center border-3 border-groove px-3 py-1.5">
-          <a href="/" class="hover:text-shadow-lg hover:underline" title="explore" aria-label="explore">🛰️ explore</a>
-          <a href="https://tangled.sh/@zeu.dev/potatonet-app" class="hover:text-shadow-lg" title="source code" aria-label="source code">🧶 source code</a>
+      <div class="flex gap-4 items-center flex-wrap">
+        <nav class="flex gap-4 flex-wrap items-center px-3 py-1.5">
+          <a href="/" class="hover:text-shadow-sm" title="explore" aria-label="explore">🛰️ explore</a>
+          <a href="https://tangled.sh/@zeu.dev/potatonet-app" class="hover:text-shadow-sm" title="source code" aria-label="source code">🧶 source code</a>
           {#if user}
-            <a href={`/${user.handle}/bookmarks`} class="hover:text-shadow-lg" aria-label="logged in user's bookmarks">🔖 your bookmarks</a>
+            <a href={`/${user.handle}/bookmarks`} class="hover:text-shadow-sm" aria-label="logged in user's bookmarks">🔖 your bookmarks</a>
             <p>{user.handle}</p>
           {/if}
         </nav>

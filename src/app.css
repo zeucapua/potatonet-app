@@ -10,9 +10,15 @@
   src: url("/Comico-Regular.woff2");
 }
 
+@font-face {
+  font-family: "Azeret";
+  src: url("/AzeretMono-Variable.woff2");
+}
+
 @theme {
   --font-neco: "Neco";
   --font-comico: "Comico";
+  --font-azeret: "Azeret";
 }
 
 @utility border-groove {
