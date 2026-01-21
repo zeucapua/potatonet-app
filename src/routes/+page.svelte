@@ -1,7 +1,7 @@
 <script lang="ts">
-    import PublicationCard from '$lib/components/PublicationCard.svelte';
   import type { PublicationNode } from '$lib/utils';
   import { createInfiniteQuery } from '@tanstack/svelte-query';
+  import PublicationCard from '$lib/components/PublicationCard.svelte';
 
   let { data } = $props();
   let { atclient, user } = data;

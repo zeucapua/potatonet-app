@@ -1,14 +1,15 @@
 <script lang="ts">
   import { getContext } from "svelte";
   import { createQuery } from "@tanstack/svelte-query";
-  import { resolveHandle, type MiniDoc, type PublicationNode, type StandardSiteThemeColorRGB } from "$lib/utils";
   import type { QuicksliceClient } from "quickslice-client-js";
+  import { parseAtUri, resolveHandle, type MiniDoc, type PublicationNode } from "$lib/utils";
 
   const user = getContext("user") as MiniDoc;
   const atclient = getContext("atclient") as QuicksliceClient;
 
   let { publication, showEmpty = false }: { publication: PublicationNode, showEmpty?: boolean } = $props();
 
+  let disableSubscribeButton = $state(false);
   let isSubscribeButtonHovered = $state(false);
 
   const miniDocQuery = createQuery(() => ({
@@ -40,10 +41,10 @@
       const subscribers = Number(data.links["site.standard.graph.subscription"]?.[".publication"]?.records) || 0;
 
       return { documents, subscribers }
-    }
+    },
   }));
 
-  const isSubscribedQuery = createQuery(() => ({
+  const subscriptionQuery = createQuery(() => ({
     queryKey: ["isSubscribed", publication.uri, user.did],
     queryFn: async () => {
       const constellationUrl = new URL("https://constellation.microcosm.blue/xrpc/blue.microcosm.links.getBacklinks");
@@ -57,14 +58,15 @@
       });
 
 
-      const json = await response.json() as { total: number };
+      const json = await response.json() as { records: { did: string, collection: string, rkey: string }[] };
       return json;
     },
+    select: (data) => data.records[0] && data.records[0].rkey
   }));
 
   let documents = $derived(countQuery.data?.documents || 0);
   let subscribers = $derived(countQuery.data?.subscribers || 0);
-  let isSubscribed = $derived((isSubscribedQuery.data?.total ?? 0) === 1);
+  let subscriptionRkey = $derived(subscriptionQuery.data);
   let blobSyncUrl = $derived((`${miniDocQuery.data?.pds}/xrpc/com.atproto.sync.getBlob?did=${publication.did}&cid=${publication.value.icon?.ref.$link}`));
   const theme = publication.value.basicTheme || { 
     $type: "site.standard.theme.basic",
@@ -94,17 +96,61 @@
     },
   };
 
-  // TODO: update with `site.standard.graph.subscription` create or delete on click with auth
-  function toggleSubscribe() {
-    const past = isSubscribed;
-    isSubscribed = !isSubscribed;
-    if (subscribers) {
-      if (past) {
-        subscribers--;
+  async function toggleSubscribe() {
+    disableSubscribeButton = true;
+
+    const pastRkey = subscriptionRkey;
+    if (pastRkey) {
+      subscribers--;
+      subscriptionRkey = undefined;
+    }
+    else {
+      subscribers++;
+      subscriptionRkey = "placeholder_rkey";
+    }
+
+    try {
+      if (pastRkey) {
+        const mutation = `
+          mutation {
+            deleteSiteStandardGraphSubscription(rkey: "${pastRkey}") {
+              uri
+            }
+          }
+        `;
+        await atclient.mutate(mutation) as { createSiteStandardGraphSubscription: { uri: string }};
+        subscriptionRkey = undefined;
       }
       else {
-        subscribers++;
+        const mutation = `
+          mutation {
+            createSiteStandardGraphSubscription(input: {
+              publication: "${publication.uri}"
+            }) {
+              uri
+            }
+          }
+        `;
+        const result = await atclient.mutate(mutation) as { createSiteStandardGraphSubscription: { uri: string }};
+        const { rkey } = parseAtUri(result.createSiteStandardGraphSubscription.uri);
+        subscriptionRkey = rkey;
       }
+
+      disableSubscribeButton = false;
+    }
+    catch (e) {
+      console.log(e);
+      // rollback initial changes
+      if (pastRkey) {
+        subscribers++;
+        subscriptionRkey = pastRkey;
+      }
+      else {
+        subscribers--;
+        subscriptionRkey = undefined;
+      }
+
+      disableSubscribeButton = false;
     }
   }
 </script>
@@ -159,14 +205,19 @@
     </div>
     <button
       onclick={toggleSubscribe}
+      disabled={disableSubscribeButton}
       onmouseenter={() => isSubscribeButtonHovered = true}
       onmouseleave={() => isSubscribeButtonHovered = false}
-      class={["flex flex-1 flex-col items-center justify-center gap-1 p-4 hover:cursor-pointer transition-all duration-150 hover:bg-green-500", isSubscribed && "bg-green-500 hover:bg-red-400"]}>
-      <span class="text-2xl font-bold">
+      class={[
+        "flex flex-1 flex-col items-center justify-center gap-1 p-4 hover:cursor-pointer transition-all duration-150 hover:bg-green-500",
+        subscriptionRkey && "bg-green-500 hover:bg-red-400"
+      ]}
+    >
+      <span class="gap-[0.5rem] text-2xl font-bold">
         {subscribers}
       </span>
-      <span class="text-xs uppercase tracking-wide">
-        {#if isSubscribed}
+      <span class="text-xs uppercase tracking-wide flex">
+        {#if subscriptionRkey}
           {#if isSubscribeButtonHovered}
             Unsubscribe?
           {:else}
@@ -178,6 +229,10 @@
           {:else}
             Subscribers
           {/if}
+        {/if}
+
+        {#if disableSubscribeButton}
+          <p class="animate-spin">◝</p>
         {/if}
       </span>
     </button>

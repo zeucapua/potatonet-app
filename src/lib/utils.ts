@@ -9,6 +9,13 @@ export function parseAtUri(uri: string) {
   }
 }
 
+export function createAtUri({ did, collection, rkey }: { did: string, collection: string, rkey: string }) {
+  if (did && collection && rkey) {
+    return `at://${did}/${collection}/${rkey}`;    
+  }
+  return undefined;
+}
+
 export type MiniDoc = {
   did: string;
   handle: string;
