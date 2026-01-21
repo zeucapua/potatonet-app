@@ -45,8 +45,11 @@
   }));
 
   const subscriptionQuery = createQuery(() => ({
-    queryKey: ["isSubscribed", publication.uri, user.did],
+    queryKey: ["isSubscribed", publication.uri, user && user.did],
     queryFn: async () => {
+      if (!user.did) {
+        return { records: [] }
+      }
       const constellationUrl = new URL("https://constellation.microcosm.blue/xrpc/blue.microcosm.links.getBacklinks");
       constellationUrl.searchParams.set("subject", publication.uri);
       constellationUrl.searchParams.set("source", "site.standard.graph.subscription:publication");
@@ -97,6 +100,7 @@
   };
 
   async function toggleSubscribe() {
+    if (!user) { throw Error() }
     disableSubscribeButton = true;
 
     const pastRkey = subscriptionRkey;
