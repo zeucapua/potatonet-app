@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Debounced } from "runed";
   import type { PublicationNode } from '$lib/utils';
   import { createInfiniteQuery } from '@tanstack/svelte-query';
   import PublicationCard from '$lib/components/PublicationCard.svelte';
@@ -7,13 +8,21 @@
   let { atclient, user } = data;
 
   let page = $state(0);
+  let searchTerm = $state("");
+  const debouncedSearchTerm = new Debounced(() => searchTerm, 500);
 
-  const publicationsQuery = createInfiniteQuery(() => ({
-    queryKey: ["publications"],
+  const publicationsQuery =$derived( createInfiniteQuery(() => ({
+    queryKey: ["publications", debouncedSearchTerm.current],
     queryFn: async ({ pageParam }) => {
       const query = `
         query GetPublications {
-          siteStandardPublication(first: 20, after: "${pageParam}") {
+          siteStandardPublication(first: 20, after: "${pageParam}", where: {
+            or: [{
+              name: { contains: "${debouncedSearchTerm.current}" }
+            }, {
+              actorHandle: { contains: "${debouncedSearchTerm.current}" }
+            }]
+          }) {
             edges {}
             pageInfo {
               hasNextPage
@@ -41,12 +50,16 @@
       const nodes = items.map((i) => i.node);
       return nodes;
     }
-  }));
+  })));
 
   let currentPage = $derived(publicationsQuery.data?.slice(page*20, (page*20) + 20));
 </script>
 
 <menu>
+  <label>
+    Search: 
+    <input bind:value={searchTerm} class="border" />
+  </label>
   <button 
     onclick={() => { 
       if (page > 0) {

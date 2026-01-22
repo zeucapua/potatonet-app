@@ -42,14 +42,12 @@
       <div class="flex gap-4 items-center flex-wrap">
         <nav class="flex gap-4 flex-wrap items-center px-3 py-1.5">
           <a href="/" class="hover:text-shadow-sm" title="explore" aria-label="explore">🛰️ explore</a>
-          <a href="https://tangled.sh/@zeu.dev/potatonet-app" class="hover:text-shadow-sm" title="source code" aria-label="source code">🧶 source code</a>
           {#if user}
-            <a href={`/${user.handle}/bookmarks`} class="hover:text-shadow-sm" aria-label="logged in user's bookmarks">🔖 your bookmarks</a>
             <p>{user.handle}</p>
           {/if}
         </nav>
         {#if user}
-          <button onclick={logout} class="hover:text-shadow-lg hover:cursor-pointer">
+          <button onclick={logout} class="bg-amber-400 text-black hover:cursor-pointer hover:bg-amber-500 hover:text-white px-4 py-2">
             Logout
          </button>
         {:else}
