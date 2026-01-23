@@ -1,9 +1,10 @@
 <script lang="ts">
   import '../app.css';
 	import { page } from '$app/state';
-  import { setContext } from 'svelte';
+  import { onMount, setContext } from 'svelte';
   import { QueryClient, QueryClientProvider } from "@tanstack/svelte-query";
   import { SvelteQueryDevtools } from "@tanstack/svelte-query-devtools";
+    import { goto } from '$app/navigation';
 
 	let { data, children } = $props();
   const { atclient, user } = data;
@@ -31,6 +32,12 @@
       }
     }
   });
+
+  onMount(() => {
+    if (user) {
+      goto("/home");
+    }
+  });
 </script>
 
 <QueryClientProvider client={queryClient}>
@@ -41,9 +48,9 @@
 
       <div class="flex gap-4 items-center flex-wrap">
         <nav class="flex gap-4 flex-wrap items-center px-3 py-1.5">
-          <a href="/" class="hover:text-shadow-sm" title="explore" aria-label="explore">🛰️ explore</a>
+          <a href="/explore" class="hover:text-shadow-sm" title="explore" aria-label="explore">🛰️ explore</a>
           {#if user}
-            <p>{user.handle}</p>
+            <a href="/home" class="hover:text-shadow-sm" title="explore" aria-label="explore">🏠 {user.handle}</a>
           {/if}
         </nav>
         {#if user}
