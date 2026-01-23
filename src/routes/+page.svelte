@@ -11,18 +11,18 @@
   let searchTerm = $state("");
   const debouncedSearchTerm = new Debounced(() => searchTerm, 500);
 
-  const publicationsQuery =$derived( createInfiniteQuery(() => ({
-    queryKey: ["publications", debouncedSearchTerm.current],
+  const publicationsQuery = createInfiniteQuery(() => ({
+    queryKey: ["publications", debouncedSearchTerm.current || undefined],
     queryFn: async ({ pageParam }) => {
       const query = `
         query GetPublications {
-          siteStandardPublication(first: 20, after: "${pageParam}", where: {
+          siteStandardPublication(first: 20, after: "${pageParam}", ${debouncedSearchTerm.current && `where: {
             or: [{
               name: { contains: "${debouncedSearchTerm.current}" }
             }, {
               actorHandle: { contains: "${debouncedSearchTerm.current}" }
             }]
-          }) {
+          }`}) {
             edges {}
             pageInfo {
               hasNextPage
@@ -42,7 +42,6 @@
         }
       }
     },
-    staleTime: 1000000,
     initialPageParam: "",
     getNextPageParam: (lastPage) => lastPage.siteStandardPublication.pageInfo.endCursor,
     select: (data) => { 
@@ -50,7 +49,7 @@
       const nodes = items.map((i) => i.node);
       return nodes;
     }
-  })));
+  }));
 
   let currentPage = $derived(publicationsQuery.data?.slice(page*20, (page*20) + 20));
 </script>
@@ -90,7 +89,10 @@
   <p>Fetching...</p>
 {:else if publicationsQuery.isError}
   <p>Error</p>
-{:else}
+{:else if publicationsQuery.isSuccess}
+  {#if currentPage?.length === 0}
+    There are no publications based onb the current filters
+  {/if}
   {#each currentPage as publication (publication.uri)}
     <PublicationCard {publication} />
   {/each}

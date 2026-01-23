@@ -35,7 +35,7 @@
 
 <QueryClientProvider client={queryClient}>
   <SvelteQueryDevtools />
-  <div class="flex flex-col gap-8 w-screen h-full min-h-screen font-azeret">
+  <div class="flex flex-col gap-8 w-screen h-full min-h-screen font-azeret bg-[#283618] text-white">
     <header class="flex flex-col lg:flex-row lg:items-center w-full gap-4 px-8 py-4 border-b lg:border-none justify-between">
       <a href="/" class="text-2xl hover:text-shadow-md font-neco font-semibold">🥔 potatonet</a>
 
