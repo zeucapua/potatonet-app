@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+html {
+ background-color: #283618;
+}
+
 @font-face {
   font-family: "Neco";
   src: url("/Neco-Variable.woff2");

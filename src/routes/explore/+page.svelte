@@ -103,7 +103,7 @@
   {/each}
 {/if}
 
-<menu>
+<menu class="self-end">
   {#if page > 0}
     <button 
       onclick={() => { 

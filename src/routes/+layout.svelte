@@ -33,11 +33,13 @@
     }
   });
 
+  /**
   onMount(() => {
     if (user) {
       goto("/home");
     }
   });
+  **/
 </script>
 
 <QueryClientProvider client={queryClient}>
