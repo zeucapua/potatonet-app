@@ -1,18 +1,16 @@
 <script lang="ts">
+  import { Debounced } from "runed";
   import { goto } from "$app/navigation";
   import { getContext, onMount } from "svelte";
   import type { MiniDoc, PublicationNode } from "$lib/utils";
   import { createInfiniteQuery } from "@tanstack/svelte-query";
   import type { QuicksliceClient } from "quickslice-client-js";
   import PublicationCard from "$lib/components/PublicationCard.svelte";
-    import { Debounced } from "runed";
 
   const user = getContext("user") as MiniDoc;
   const atclient = getContext("atclient") as QuicksliceClient;
 
   let page = $state(0);
-  let searchTerm = $state("");
-  let debouncedSearchTerm = new Debounced(() => searchTerm, 500);
 
   onMount(() => {
     if (!user) { 
@@ -21,7 +19,7 @@
   });
 
   const subscriptionsQuery = createInfiniteQuery(() => ({
-    queryKey: ["subscriptions", user.did, debouncedSearchTerm.current || undefined],
+    queryKey: ["subscriptions", user.did],
     queryFn: async () => {
       const query = `
         query GetSubscriptionByUserDid {
@@ -66,24 +64,19 @@
 
 <h1 class="text-amber-400 text-3xl font-bold">My Subscriptions</h1>
 
-<menu class="flex w-full justify-between items-center">
-  <label>
-    Search: 
-    <input bind:value={searchTerm} class="border px-3 py-2" />
-  </label>
-
+<menu class="flex w-full justify-end items-center">
   <div class="">
     {#if page > 0}
-    <button 
-      onclick={() => { 
-        if (page > 0) {
-          page--;
-        }
-      }}
-      class="bg-amber-400 text-black hover:cursor-pointer hover:bg-amber-500 hover:text-white px-4 py-2"
-    >
-      Previous 
-    </button>
+      <button 
+        onclick={() => { 
+          if (page > 0) {
+            page--;
+          }
+        }}
+        class="bg-amber-400 text-black hover:cursor-pointer hover:bg-amber-500 hover:text-white px-4 py-2"
+      >
+        Previous 
+      </button>
     {/if}
     <number class="px-3">Page {page + 1}</number>
     {#if subscriptionsQuery.hasNextPage}
