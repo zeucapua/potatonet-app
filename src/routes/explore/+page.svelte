@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Debounced } from "runed";
-  import type { PublicationNode } from '$lib/utils';
+  import type { PublicationNode, SubscriptionNode } from '$lib/utils';
   import { createInfiniteQuery } from '@tanstack/svelte-query';
   import PublicationCard from '$lib/components/PublicationCard.svelte';
 
@@ -23,7 +23,24 @@
               actorHandle: { contains: "${debouncedSearchTerm.current}" }
             }]
           }`}) {
-            edges {}
+            edges {
+              node {
+                viewerSiteStandardGraphSubscriptionViaPublication {}
+                uri
+                indexedAt
+                cid
+                did
+                url
+                name
+                description
+                icon {}
+                actorHandle
+                preferences {
+                  showInDiscover
+                }
+                basicTheme {}
+              }
+            }
             pageInfo {
               hasNextPage
               endCursor
@@ -31,10 +48,19 @@
           }
         }
       `;
-      const data = await atclient.publicQuery(query);
+      let data;
+      if (user) {
+        data = await atclient.query(query);
+      }
+      else {
+        data = await atclient.publicQuery(query);
+      }
       return data as {
         siteStandardPublication: {
-          edges: { node: PublicationNode, cursor: string }[],
+          edges: { 
+            node: PublicationNode & { viewerSiteStandardGraphSubscriptionViaPublication: SubscriptionNode | null}, 
+            cursor: string 
+          }[],
           pageInfo: {
             hasNextPage: boolean;
             endCursor: string;
@@ -98,7 +124,7 @@
   {#if currentPage?.length === 0}
     There are no publications based onb the current filters
   {/if}
-  {#each currentPage as publication (publication.uri)}
+  {#each currentPage as publication, i (i)}
     <PublicationCard {publication} />
   {/each}
 {/if}

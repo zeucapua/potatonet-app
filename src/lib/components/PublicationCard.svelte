@@ -2,12 +2,16 @@
   import { getContext } from "svelte";
   import { createQuery } from "@tanstack/svelte-query";
   import type { QuicksliceClient } from "quickslice-client-js";
-  import { parseAtUri, resolveHandle, type MiniDoc, type PublicationNode } from "$lib/utils";
+  import { parseAtUri, resolveHandle, type MiniDoc, type PublicationNode, type SubscriptionNode } from "$lib/utils";
 
   const user = getContext("user") as MiniDoc;
   const atclient = getContext("atclient") as QuicksliceClient;
 
-  let { publication, showEmpty = false }: { publication: PublicationNode, showEmpty?: boolean } = $props();
+  let { publication, showEmpty = false }: { 
+    publication: PublicationNode & {  viewerSiteStandardGraphSubscriptionViaPublication?: SubscriptionNode | null }, showEmpty?: boolean 
+  } = $props();
+
+  const { rkey: pubRkey } = parseAtUri(publication.uri);
 
   let disableSubscribeButton = $state(false);
   let isSubscribeButtonHovered = $state(false);
@@ -44,34 +48,11 @@
     },
   }));
 
-  const subscriptionQuery = createQuery(() => ({
-    queryKey: ["isSubscribed", publication.uri, user && user.did],
-    queryFn: async () => {
-      if (!user.did) {
-        return { records: [] }
-      }
-      const constellationUrl = new URL("https://constellation.microcosm.blue/xrpc/blue.microcosm.links.getBacklinks");
-      constellationUrl.searchParams.set("subject", publication.uri);
-      constellationUrl.searchParams.set("source", "site.standard.graph.subscription:publication");
-      constellationUrl.searchParams.set("did", user.did);
-      const response = await fetch(constellationUrl, {
-        headers: {
-          "Accept": "application/json"
-        }
-      });
-
-
-      const json = await response.json() as { records: { did: string, collection: string, rkey: string }[] };
-      return json;
-    },
-    select: (data) => data.records[0] && data.records[0].rkey
-  }));
-
   let documents = $derived(countQuery.data?.documents || 0);
   let subscribers = $derived(countQuery.data?.subscribers || 0);
-  let subscriptionRkey = $derived(subscriptionQuery.data);
-  let blobSyncUrl = $derived((`${miniDocQuery.data?.pds}/xrpc/com.atproto.sync.getBlob?did=${publication.did}&cid=${publication.value.icon?.ref.$link}`));
-  const theme = publication.value.basicTheme || { 
+  let subscriptionRkey = $derived(parseAtUri(publication.viewerSiteStandardGraphSubscriptionViaPublication?.uri || "").rkey);
+  let blobSyncUrl = $derived(`${miniDocQuery.data?.pds}/xrpc/com.atproto.sync.getBlob?did=${publication.did}&cid=${publication.icon?.ref}`);
+  const theme = publication.basicTheme || { 
     $type: "site.standard.theme.basic",
     background: {
       $type: "site.standard.theme.color#rgb",
@@ -167,15 +148,15 @@
   `}
 >
   <div class="flex flex-1 flex-col items-center justify-center gap-3 p-8">
-    {#if publication.value.icon}
+    {#if publication.icon}
       <img 
         src={blobSyncUrl.toString()} 
-        alt={publication.value.name} 
+        alt={publication.name} 
         class="size-24 rounded-xl hover:-rotate-15 transition-transform duration-150" 
       />
     {/if}
     <h3 class="text-xl font-semibold text-center text-balance">
-      {publication.value.name}
+      {publication.name}
     </h3>
     <a 
       href={`https://bsky.app/profile/${publication.actorHandle}`}
@@ -187,12 +168,13 @@
       by @{publication.actorHandle} 
     </a>
     <p class="text-xs text-center max-w-md leading-relaxed font-neco">
-      {publication.value.description}
+      {publication.description}
     </p>
   </div>
 
   <div class="flex w-full lg:w-32 border-t lg:flex-col lg:border-t-0 lg:border-l bg-muted/50">
-    <div 
+    <a
+      href={`/${miniDocQuery.data?.handle}/${pubRkey}`}
       class="group flex flex-1 flex-col items-center justify-center gap-1 border-r lg:border-r-0 lg:border-b border-border p-4 hover:cursor-pointer"
       style={`
         background-color: rgb(${theme.accent.r},${theme.accent.g},${theme.accent.b});
@@ -206,7 +188,7 @@
         Documents
         <span class="group-hover:rotate-45 transition-transform duration-150">↗</span>
       </span>
-    </div>
+    </a>
     <button
       onclick={toggleSubscribe}
       disabled={disableSubscribeButton}
