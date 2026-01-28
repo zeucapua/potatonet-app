@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { Debounced } from "runed";
   import { goto } from "$app/navigation";
   import { getContext, onMount } from "svelte";
   import type { MiniDoc, PublicationNode } from "$lib/utils";
@@ -28,7 +27,22 @@
           }) {
             edges {
               node {
-                publicationResolved {}
+                uri
+                publicationResolved {
+                  uri
+                  indexedAt
+                  cid
+                  did
+                  url
+                  name
+                  description
+                  icon {}
+                  actorHandle
+                  preferences {
+                    showInDiscover
+                  }
+                  basicTheme {}
+                }
               }
             }
             pageInfo {
@@ -39,10 +53,10 @@
         }
       `;
 
-      const data = await atclient.publicQuery(query);
+      const data = await atclient.query(query);
       return data as {
         siteStandardGraphSubscription: {
-          edges: { node: { publicationResolved: PublicationNode }}[],
+          edges: { node: { uri: string, publicationResolved: PublicationNode }}[],
           pageInfo: {
             hasNextPage: boolean;
             endCursor: string;
@@ -54,7 +68,7 @@
     getNextPageParam: (lastPage) => lastPage.siteStandardGraphSubscription.pageInfo.endCursor, 
     select: (data) => { 
       const items = data.pages.map((page) => page.siteStandardGraphSubscription.edges).flat();
-      const nodes = items.map((i) => i.node.publicationResolved);
+      const nodes = items.map((i) => { return { ...(i.node.publicationResolved), viewerSiteStandardGraphSubscriptionViaPublication: { uri: i.node.uri }} });
       return nodes;
     }
   }));

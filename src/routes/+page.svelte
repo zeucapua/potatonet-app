@@ -1,10 +1,20 @@
 <script lang="ts">
+  import { getContext } from "svelte";
   import LeafletIcon from "$lib/components/LeafletIcon.svelte";
   import OffprintIcon from "$lib/components/OffprintIcon.svelte";
   import PcktIcon from "$lib/components/PcktIcon.svelte";
+    import type { QuicksliceClient } from "quickslice-client-js";
+
+  const user = getContext("user");
+  const atclient = getContext("atclient") as QuicksliceClient;
+  let handleInput = $state("");
+
+  async function login() {
+    if (handleInput) {
+      await atclient.loginWithRedirect({ handle: handleInput });
+    }
+  }
 </script>
-
-
 
 <section class="flex flex-col gap-4 my-8">
   <h2 class="text-amber-400 text-2xl font-bold font-neco">Talk about what everyone's reading today</h2>
@@ -39,7 +49,19 @@
   <h2 class="text-center text-amber-400 text-3xl font-bold font-neco">Find your next read on potatonet</h2>
   <div class="flex gap-4">
     <a href="/explore" class="bg-amber-400 text-black hover:cursor-pointer hover:bg-amber-500 hover:text-white px-4 py-2">🛰️ Explore</a>
-    <button class="bg-amber-400 text-black hover:cursor-pointer hover:bg-amber-500 hover:text-white px-4 py-2">Login</button>
+    {#if user}
+      <a href="/home" class="bg-amber-400 text-black hover:cursor-pointer hover:bg-amber-500 hover:text-white px-4 py-2">🏠 Home</a>
+    {:else}
+      <input 
+        type="text" 
+        bind:value={handleInput}
+        placeholder="Handle (eg: zeu.dev)" 
+        class="border border-black border-dashed text-sm px-3 py-2 hover:shadow-lg focus:shadow-lg" 
+      />
+      <button onclick={login} class="bg-amber-400 text-black hover:cursor-pointer hover:bg-amber-500 hover:text-white px-4 py-2">
+        Login
+      </button>
+    {/if}
   </div>
   <pre class="text-xs tracking-widest">
                                                                                                

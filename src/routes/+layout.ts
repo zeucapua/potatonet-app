@@ -13,7 +13,7 @@ export const load = async ({ url }: LayoutLoadEvent) => {
 
   if (url.searchParams.has("code")) {
     await atclient.handleRedirectCallback();
-    redirect(302, "/");
+    redirect(302, "/home");
   }
 
   const isAuthed = await atclient.isAuthenticated();

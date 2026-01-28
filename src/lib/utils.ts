@@ -39,7 +39,7 @@ export type Node = {
 
 export type ATBlob = {
   $type: string;
-  ref: { $link: string; };
+  ref: string;
   mimeType: string;
   size: number;
 }
@@ -51,7 +51,7 @@ export type StandardSiteThemeColorRGB = {
   r: number;
 }
 
-export type PublicationNode = Node & { value: {
+export type PublicationNode = Node & {
   url: string;
   name: string;
   description: string;
@@ -67,7 +67,11 @@ export type PublicationNode = Node & { value: {
     accent: StandardSiteThemeColorRGB;
     accentForeground: StandardSiteThemeColorRGB;
   };
-}}
+}
+
+export type SubscriptionNode = Node & {
+  publication: string;  
+}
 
 export type DocumentNode = Node & { value: {
   title: string;
