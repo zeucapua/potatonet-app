@@ -85,3 +85,31 @@ export type DocumentNode = Node & { value: {
   tags?: string[];
   updatedAt?: string;
 }}
+
+export const defaultTheme = {
+  $type: "site.standard.theme.basic",
+  background: {
+    $type: "site.standard.theme.color#rgb",
+    b: 255,
+    g: 255,
+    r: 255
+  },
+  accentForeground: {
+    $type: "site.standard.theme.color#rgb",
+    b: 0,
+    g: 0,
+    r: 0,
+  },
+  foreground: {
+    $type: "site.standard.theme.color#rgb",
+    b: 0,
+    g: 0,
+    r: 0 
+  },
+  accent: {
+    $type: "site.standard.theme.color#rgb",
+    b: 36,
+    g: 191,
+    r: 251 
+  },
+}

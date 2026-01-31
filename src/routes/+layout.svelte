@@ -41,9 +41,16 @@
 
       <div class="flex gap-4 items-center flex-wrap">
         <nav class="flex gap-4 flex-wrap items-center px-3 py-1.5">
-          <a href="/explore" class="hover:text-shadow-sm" title="explore" aria-label="explore">🛰️ Explore</a>
+          <a 
+            href="/explore" 
+            title="Explore" 
+            aria-label="Explore"
+            class="bg-amber-400 w-full lg:w-fit text-black hover:cursor-pointer hover:bg-amber-500 hover:text-white px-4 py-2"
+          >
+            🛰️ Explore
+          </a>
           {#if user}
-            <a href="/home" class="hover:text-shadow-sm" title="explore" aria-label="explore">🏠 Home</a>
+            <a href="/home" class="hover:text-shadow-sm" title="Home" aria-label="Home">🏠 Home</a>
           {/if}
         </nav>
         {#if user}
@@ -53,9 +60,10 @@
         {:else}
           <input 
             type="text" 
+            name="handle"
             bind:value={handleInput}
-            placeholder="Handle (eg: zeu.dev)" 
-            class="border border-black border-dashed text-sm px-3 py-2 hover:shadow-lg focus:shadow-lg" 
+            placeholder="alice.bsky.social" 
+            class="border border-yellow-400 text-sm px-3 py-2 hover:shadow-lg focus:shadow-lg" 
           />
           <button onclick={login} class="bg-amber-400 text-black hover:cursor-pointer hover:bg-amber-500 hover:text-white px-4 py-2">
             Login
