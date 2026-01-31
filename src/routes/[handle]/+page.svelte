@@ -5,24 +5,24 @@
   import PublicationCard from '$lib/components/PublicationCard.svelte';
 
   let { data } = $props();
-  let { atclient, user } = data;
+  let { atclient, user, author } = data;
 
   let page = $state(0);
   let searchTerm = $state("");
   const debouncedSearchTerm = new Debounced(() => searchTerm, 500);
 
   const publicationsQuery = createInfiniteQuery(() => ({
-    queryKey: ["publications", debouncedSearchTerm.current || undefined],
+    queryKey: ["publications", debouncedSearchTerm.current || undefined, author.handle],
     queryFn: async ({ pageParam }) => {
       const query = `
         query GetPublications {
-          siteStandardPublication(first: 20, after: "${pageParam}", ${debouncedSearchTerm.current && `where: {
-            or: [{
-              name: { contains: "${debouncedSearchTerm.current}" }
+          siteStandardPublication(first: 20, after: "${pageParam}", where: {
+            and: [{
+              name: { contains: "${debouncedSearchTerm.current || ""}" }
             }, {
-              actorHandle: { contains: "${debouncedSearchTerm.current}" }
+              actorHandle: { eq: "${author.handle}" }
             }]
-          }`}) {
+          }) {
             edges {
               node {
                 viewerSiteStandardGraphSubscriptionViaPublication {}
@@ -48,6 +48,7 @@
           }
         }
       `;
+
       let data;
       if (user) {
         data = await atclient.query(query);
@@ -81,8 +82,7 @@
 </script>
 
 <header class="flex flex-col gap-2 lg:mb-8">
-  <h1 class="text-2xl lg:text-4xl font-bold text-yellow-400">Explore</h1>
-  <h2 class="font-neco lg:text-xl">Read from authors across the atmosphere</h2>
+  <h1 class="text-2xl lg:text-4xl font-bold text-yellow-400">Publications by {author.handle}</h1>
 </header>
 
 <menu class="flex flex-col lg:flex-row gap-4 w-full justify-between items-center">

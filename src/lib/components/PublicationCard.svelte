@@ -2,7 +2,7 @@
   import { getContext } from "svelte";
   import { createQuery } from "@tanstack/svelte-query";
   import type { QuicksliceClient } from "quickslice-client-js";
-  import { parseAtUri, resolveHandle, type MiniDoc, type PublicationNode, type SubscriptionNode } from "$lib/utils";
+  import { defaultTheme, parseAtUri, resolveHandle, type MiniDoc, type PublicationNode, type SubscriptionNode } from "$lib/utils";
 
   const user = getContext("user") as MiniDoc;
   const atclient = getContext("atclient") as QuicksliceClient;
@@ -52,33 +52,7 @@
   let subscribers = $derived(countQuery.data?.subscribers || 0);
   let subscriptionRkey = $derived(parseAtUri(publication.viewerSiteStandardGraphSubscriptionViaPublication?.uri || "").rkey);
   let blobSyncUrl = $derived(`${miniDocQuery.data?.pds}/xrpc/com.atproto.sync.getBlob?did=${publication.did}&cid=${publication.icon?.ref}`);
-  const theme = publication.basicTheme || { 
-    $type: "site.standard.theme.basic",
-    background: {
-      $type: "site.standard.theme.color#rgb",
-      b: 255,
-      g: 255,
-      r: 255
-    },
-    accentForeground: {
-      $type: "site.standard.theme.color#rgb",
-      b: 0,
-      g: 0,
-      r: 0,
-    },
-    foreground: {
-      $type: "site.standard.theme.color#rgb",
-      b: 0,
-      g: 0,
-      r: 0 
-    },
-    accent: {
-      $type: "site.standard.theme.color#rgb",
-      b: 36,
-      g: 191,
-      r: 251 
-    },
-  };
+  const theme = publication.basicTheme || defaultTheme;
 
   async function toggleSubscribe() {
     if (!user) { throw Error() }
@@ -124,7 +98,7 @@
       disableSubscribeButton = false;
     }
     catch (e) {
-      console.log(e);
+      console.error(e);
       // rollback initial changes
       if (pastRkey) {
         subscribers++;
@@ -159,7 +133,7 @@
       {publication.name}
     </h3>
     <a 
-      href={`https://bsky.app/profile/${publication.actorHandle}`}
+      href={`/${publication.actorHandle}`}
       style={`
         color: rgb(${theme.foreground.r},${theme.foreground.g},${theme.foreground.b});
       `}
