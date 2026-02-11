@@ -17,7 +17,7 @@
 </script>
 
 <section class="flex flex-col gap-4 my-8 items-center justify-center">
-  <h2 class="text-center text-amber-400 text-3xl font-bold font-neco">Find your next read on potatonet</h2>
+  <h2 class="text-center text-amber-400 text-3xl font-bold font-neco">Find your next read in the network</h2>
   <div class="flex flex-col lg:flex-row gap-4">
     {#if user}
       <a href="/home" class="bg-amber-400 text-black hover:cursor-pointer hover:bg-amber-500 hover:text-white px-4 py-2">🏠 Home</a>
@@ -40,7 +40,7 @@
       🛰️ Explore
     </a>
   </div>
-  <pre class="text-xs tracking-tight">
+  <pre class="text-xs tracking-wider">
                                                                                                
                                                                                                
                                                                                                

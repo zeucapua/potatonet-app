@@ -31,7 +31,18 @@
       }
     }
   });
+  
 </script>
+
+<svelte:head>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥔</text></svg>">
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content={page.url.toString()} />
+  <meta property="og:title" content="potatonet" />
+  <meta property="og:description" content="Find your next read in the network" />
+  <meta property="og:image" content="/potatonet-og.png" />
+  <meta property="og:image:alt" content="An ASCII potato with planet ring surrounding it; potatonet; Find your next read in the network" />
+</svelte:head>
 
 <QueryClientProvider client={queryClient}>
   <SvelteQueryDevtools />
