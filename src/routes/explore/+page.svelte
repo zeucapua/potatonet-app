@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Debounced } from "runed";
-  import type { PublicationNode, SubscriptionNode } from '$lib/utils';
   import { createInfiniteQuery } from '@tanstack/svelte-query';
+  import type { PublicationNode, SubscriptionNode } from '$lib/utils';
   import PublicationCard from '$lib/components/PublicationCard.svelte';
 
   let { data } = $props();
@@ -9,6 +9,7 @@
 
   let page = $state(0);
   let searchTerm = $state("");
+  let hideEmptyPublications = $state(false);
   const debouncedSearchTerm = new Debounced(() => searchTerm, 500);
 
   const publicationsQuery = createInfiniteQuery(() => ({
@@ -86,12 +87,19 @@
 </header>
 
 <menu class="flex flex-col lg:flex-row gap-4 w-full justify-between items-center">
-  <label>
-    Search: 
-    <input bind:value={searchTerm} class="border px-3 py-2" />
-  </label>
+  <div class="flex gap-4 items-center">
+    <label>
+      Search: 
+      <input bind:value={searchTerm} class="border px-3 py-2" />
+    </label>
+    
+    <label>
+      Hide Empty Publications
+      <input type="checkbox" bind:checked={hideEmptyPublications} />
+    </label>
+  </div>
 
-  <div class="">
+  <div> 
     {#if page > 0}
     <button 
       onclick={() => { 
@@ -130,7 +138,7 @@
     There are no publications based onb the current filters
   {/if}
   {#each currentPage as publication, i (i)}
-    <PublicationCard {publication} />
+    <PublicationCard {publication} {hideEmptyPublications} />
   {/each}
 {/if}
 

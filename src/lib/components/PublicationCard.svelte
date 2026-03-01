@@ -7,8 +7,8 @@
   const user = getContext("user") as MiniDoc;
   const atclient = getContext("atclient") as QuicksliceClient;
 
-  let { publication, showEmpty = false }: { 
-    publication: PublicationNode & {  viewerSiteStandardGraphSubscriptionViaPublication?: SubscriptionNode | null }, showEmpty?: boolean 
+  let { publication, hideEmptyPublications = false }: { 
+    publication: PublicationNode & {  viewerSiteStandardGraphSubscriptionViaPublication?: SubscriptionNode | null }, hideEmptyPublications?: boolean 
   } = $props();
 
   const { rkey: pubRkey } = parseAtUri(publication.uri);
@@ -114,6 +114,8 @@
   }
 </script>
 
+{#if (hideEmptyPublications && documents > 0) || !hideEmptyPublications}
+
 <div 
   class="flex flex-col lg:flex-row overflow-hidden rounded border shadow-sm"
   style={`
@@ -198,3 +200,5 @@
     </button>
   </div>
 </div>
+
+{/if}
