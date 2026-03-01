@@ -7,10 +7,7 @@
 		"build": "vite build",
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-		"db:push": "drizzle-kit push",
-		"db:migrate": "drizzle-kit migrate",
-		"db:studio": "drizzle-kit studio"
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-netlify": "^5.2.3",
@@ -18,7 +15,6 @@
 		"@sveltejs/vite-plugin-svelte": "^6.2.1",
 		"@tailwindcss/typography": "^0.5.19",
 		"autoprefixer": "^10.4.21",
-		"drizzle-kit": "^0.31.4",
 		"open-graph-scraper": "^6.11.0",
 		"svelte": "^5.39.6",
 		"svelte-check": "^4.3.2",
@@ -33,7 +29,6 @@
 		"@tailwindcss/vite": "^4.1.13",
 		"@tanstack/svelte-query": "^6.0.9",
 		"@tanstack/svelte-query-devtools": "^6.0.3",
-		"drizzle-orm": "^0.44.5",
 		"postgres": "^3.4.7",
 		"quickslice-client-js": "^0.3.0",
 		"runed": "^0.37.1",
